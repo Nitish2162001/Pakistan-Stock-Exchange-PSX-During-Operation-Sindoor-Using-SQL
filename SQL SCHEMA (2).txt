@@ -1,0 +1,83 @@
+-- 1. Stock Indices Table (Only Pakistan)
+CREATE TABLE stock_indices (
+    index_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    exchange VARCHAR(100),
+    country VARCHAR(50)
+);
+
+INSERT INTO stock_indices (name, exchange, country) VALUES
+('KSE-100', 'Pakistan Stock Exchange', 'Pakistan');
+
+-- 2. Index Movements Table (for KSE-100)
+CREATE TABLE index_movements (
+    movement_id INT PRIMARY KEY AUTO_INCREMENT,
+    index_id INT,
+    movement_date DATE,
+    opening_value DECIMAL(10,2),
+    highest_value DECIMAL(10,2),
+    lowest_value DECIMAL(10,2),
+    closing_value DECIMAL(10,2),
+    intraday_drop_points DECIMAL(10,2),
+    intraday_drop_percent DECIMAL(5,2),
+    FOREIGN KEY (index_id) REFERENCES stock_indices(index_id)
+);
+
+INSERT INTO index_movements (index_id, movement_date, opening_value, highest_value, lowest_value, closing_value, intraday_drop_points, intraday_drop_percent) VALUES
+(1, '2025-05-14', 113568.50, 113568.50, 107007.68, 107007.68, 6560.82, 5.78);
+
+-- 3. Market Events Table
+CREATE TABLE market_events (
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    event_name VARCHAR(255),
+    event_date DATE,
+    description TEXT,
+    impact_summary TEXT
+);
+
+INSERT INTO market_events (event_name, event_date, description, impact_summary) VALUES
+('Operation Sindoor', '2025-05-14', 
+ 'India conducted Operation Sindoor targeting terror bases in Pakistan and PoK following the Pahalgam terror attack.',
+ 'KSE-100 index plunged 5.78%, losing over 6,500 points and triggering a temporary halt.');
+
+-- 4. Event Impacts Table
+CREATE TABLE event_impacts (
+    impact_id INT PRIMARY KEY AUTO_INCREMENT,
+    event_id INT,
+    index_id INT,
+    movement_id INT,
+    impact_description TEXT,
+    FOREIGN KEY (event_id) REFERENCES market_events(event_id),
+    FOREIGN KEY (index_id) REFERENCES stock_indices(index_id),
+    FOREIGN KEY (movement_id) REFERENCES index_movements(movement_id)
+);
+
+INSERT INTO event_impacts (event_id, index_id, movement_id, impact_description) VALUES
+(1, 1, 1, 'Operation Sindoor caused panic-driven selling, leading to a 5.78% fall in the PSX KSE-100 index.');
+
+-- 5. Analysts and Comments Table
+CREATE TABLE analysts (
+    analyst_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    organization VARCHAR(100),
+    position VARCHAR(100)
+);
+
+INSERT INTO analysts (name, organization, position) VALUES
+('Fatima Bucha', 'AKD Securities', 'Market Analyst'),
+('Shahbaz Ashraf', 'Frim Ventures', 'Chief Investment Officer');
+
+CREATE TABLE analyst_comments (
+    comment_id INT PRIMARY KEY AUTO_INCREMENT,
+    analyst_id INT,
+    event_id INT,
+    comment_time TIME,
+    comment_text TEXT,
+    FOREIGN KEY (analyst_id) REFERENCES analysts(analyst_id),
+    FOREIGN KEY (event_id) REFERENCES market_events(event_id)
+);
+
+INSERT INTO analyst_comments (analyst_id, event_id, comment_time, comment_text) VALUES
+(1, 1, '11:00:00', 'The market showed signs of recovery after 11 am, reaching 112,457.37 before dropping again.'),
+(1, 1, '09:30:00', 'Market opened under pressure and selling was observed amid low volumes.'),
+(2, 1, '10:00:00', 'Investors remain cautiously hopeful that tensions will de-escalate with global mediation.');

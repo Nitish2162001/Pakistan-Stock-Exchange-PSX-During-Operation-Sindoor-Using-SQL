@@ -1,0 +1,64 @@
+ 1. Find the percentage change in the KSE-100 index between opening and closing values.
+
+SELECT 
+    name AS index_name,
+    ROUND(((closing_value - opening_value) / opening_value) * 100, 2) AS percent_change
+FROM 
+    stock_indices si
+JOIN 
+    index_movements im ON si.index_id = im.index_id
+WHERE 
+    si.name = 'KSE-100' AND movement_date = '2025-05-14';
+
+2. List all analysts who commented on the event before 11:00 AM.
+
+SELECT DISTINCT 
+    a.name, 
+    a.organization
+FROM 
+    analyst_comments ac
+JOIN 
+    analysts a ON ac.analyst_id = a.analyst_id
+WHERE 
+    ac.event_id = 1 AND ac.comment_time < '11:00:00';
+
+3. Find a full event timeline: opening, high, low, and close for the day.
+
+SELECT 
+    si.name AS index_name,
+    im.movement_date,
+    im.opening_value,
+    im.highest_value,
+    im.lowest_value,
+    im.closing_value
+FROM 
+    stock_indices si
+JOIN 
+    index_movements im ON si.index_id = im.index_id
+WHERE 
+    si.name = 'KSE-100' AND im.movement_date = '2025-05-14';
+
+
+4. Calculate how much the index would have recovered if it had closed at the intraday high (112,457.37).
+
+SELECT 
+    113568.50 - 112457.37 AS opening_to_intraday_high,
+    ROUND(((112457.37 - 113568.50) / 113568.50) * 100, 2) AS potential_recovery_percent
+
+5.Identify events that caused more than 5% drop in PSX.
+
+
+SELECT 
+    me.event_name,
+    im.intraday_drop_percent,
+    me.event_date
+FROM 
+    market_events me
+JOIN 
+    event_impacts ei ON me.event_id = ei.event_id
+JOIN 
+    index_movements im ON ei.movement_id = im.movement_id
+WHERE 
+    im.intraday_drop_percent > 5 AND ei.index_id = 1;
+
+
